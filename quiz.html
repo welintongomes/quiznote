@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="quiz.css"> <!-- Seu CSS personalizado -->
+    <link rel="stylesheet" href="bootstrap.min.css"> <!-- Inclua o Bootstrap -->
+    <script src="bootstrap.bundle.min.js"></script> <!-- Inclua o JS do Bootstrap -->
+    <link rel="shortcut icon" href="q-192x192.png" type="image/png">
+</head>
+
+<body>
+
+    <!-- modal para exibir as mensagens -->
+    <div id="modal" style="display: none;">
+        <div id="modal-content" class="modal-content">
+            <span id="close" onclick="closeModal()" style="cursor: pointer;">&times;</span>
+            <div id="modal-message"></div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div div class="nav nav-tabs custom-tabs mb-4">
+            <h1 class="header-title">Quiz&nbsp;</h1>
+            <button class="nav-link custom-tab" onclick="showTab('perguntas')">+Perguntas</button>
+            <button class="nav-link custom-tab active" onclick="showTab('respostas')">Quiz</button>
+            <button class="nav-link custom-tab" onclick="window.location.href='index.html'">Notas</button>
+            <button class="nav-link custom-tab" onclick="window.location.href='formatar.html'">Formatar</button>
+        </div>
+    </div>
+    <!-- -----------------------------começa aqui a seção de adicionar perguntas------------------------------- -->
+
+    
+    <div id="perguntas" class="tab-content">
+
+        <div class="col-12 d-flex justify-content-center align-items-center pt-4">
+            <h4 class="d-flex">Adicionar Novas Perguntas</h4>
+        </div>
+        <div class="col-12 d-flex justify-content-center align-items-center mb-3">
+
+            <div class=" w-100 pb-2">
+                <label for="categoria" class="form-label"></label>
+                <input type="text" id="categoria" class="form-control" placeholder="Digite a categoria" required
+                    list="categorias-list">
+                <datalist id="categorias-list"></datalist>
+                <div class="mb-3">
+                    <textarea type="text" id="pergunta" class="form-control" placeholder="Digite sua pergunta"></textarea>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <!-- Primeira Div (Resposta A) -->
+                <div class="col-md-3 mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <button class="btn btn-outline-secondary me-2" onclick="toggleDescricao('descricaoA')">+
+                        </button>
+                        <textarea id="respA" type="text" class="resposta form-control" placeholder="Resposta A"></textarea>
+                    </div>
+                    <input type="text" id="descricaoA" class="descricao form-control mb-2"
+                        placeholder="Descrição da Resposta A" style="display: none;">
+                    <button class="btn btn-outline-secondary" onclick="toggleDescricao('descricaoA')"
+                        style="display: none;">Ocultar Descrição</button>
+                </div>
+
+                <!-- Segunda Div (Resposta B) -->
+                <div class="col-md-3 mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <button class="btn btn-outline-secondary me-2" onclick="toggleDescricao('descricaoB')">+
+                        </button>
+                        <textarea id="respB" type="text" class="resposta form-control" placeholder="Resposta B"></textarea>
+                    </div>
+                    <input type="text" id="descricaoB" class="descricao form-control mb-2"
+                        placeholder="Descrição da Resposta B" style="display: none;">
+                    <button class="btn btn-outline-secondary" onclick="toggleDescricao('descricaoB')"
+                        style="display: none;">Ocultar Descrição</button>
+                </div>
+
+                <!-- Terceira Div (Resposta C) -->
+                <div class="col-md-3 mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <button class="btn btn-outline-secondary me-2" onclick="toggleDescricao('descricaoC')">+
+                        </button>
+                        <textarea id="respC" type="text" class="resposta form-control" placeholder="Resposta C"></textarea>
+                    </div>
+                    <input type="text" id="descricaoC" class="descricao form-control mb-2"
+                        placeholder="Descrição da Resposta C" style="display: none;">
+                    <button class="btn btn-outline-secondary" onclick="toggleDescricao('descricaoC')"
+                        style="display: none;">Ocultar Descrição</button>
+                </div>
+
+                <!-- Quarta Div (Resposta D) -->
+                <div class="col-md-3 mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <button class="btn btn-outline-secondary me-2" onclick="toggleDescricao('descricaoD')">+
+                        </button>
+                        <textarea id="respD" type="text" class="resposta form-control" placeholder="Resposta D"></textarea>
+                    </div>
+                    <input type="text" id="descricaoD" class="descricao form-control mb-2"
+                        placeholder="Descrição da Resposta D" style="display: none;">
+                    <button class="btn btn-outline-secondary" onclick="toggleDescricao('descricaoD')"
+                        style="display: none;">Ocultar Descrição</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <input type="text" id="resposta-correta" class="form-control" placeholder="Resposta Correta (A, B, C ou D)">
+        </div>
+        <div class="row m-4 ">
+            <button class="btn btn-warning w-100" onclick="limparSessionStorage()">Redefinir Campos</button>
+        </div>
+        
+        <div class="respons">
+            <button id="add-button" class="btn btn-primary" onclick="addQuestion()">Adicionar Nova Pergunta</button>
+            <button class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
+            <button class="btn btn-danger" onclick="deleteAllQuestions()">Excluir Todas as Perguntas</button>
+            <!-- Botão para selecionar arquivo -->
+            <button id="uploadButton" class="btn btn-primary"
+                onclick="document.getElementById('fileInput').click();">Importar Perguntas .JSON</button>
+        </div>
+
+        <!-- Input de arquivo escondido -->
+        <input type="file" id="fileInput" style="display: none;" onchange="importDatabase(event)" accept=".json">
+
+        <h2 class="textPA">Perguntas Adicionadas</h2>
+        <div>
+        </div>
+        <div class="dividirNaTela">
+            <label for="categoria-select" class="dropAddPerguntas">
+                <H4>Selecione uma categoria:</H4>
+            </label>
+            <select id="categoria-select" class="dropAddPerguntas" onchange="filterQuestionsByCategory()">
+                <option value="">Todas as Categorias</option>
+                <!-- As opções de categorias serão preenchidas dinamicamente -->
+            </select>
+        </div>
+        <ul id="lista-perguntas" class="list-group mt-3"></ul>
+    </div>
+
+
+    <!-- -------------------------------começa a seção perguntas apartir daqui--------------------------------- -->
+    <div id="respostas" class="tab-content" style="display: none;">
+
+        <div class="container">
+            <div class="row justify-content-center">
+
+                <!-- Bloco 1 (Categoria primeiro) -->
+                <div class="col-12 col-md-6 d-flex justify-content-start align-items-center mb-3">
+                    <label style="font-size: x-large; font-weight: bold;" for="categoria-quiz"
+                        class="form-label me-2 mb-0">Categoria:</label>
+                    <select id="categoria-quiz" class="form-select" style="width: auto;">
+                        <option value="">Selecione uma categoria</option>
+                        <!-- As opções de categorias serão preenchidas dinamicamente -->
+                    </select>
+                </div>
+
+                <!-- Bloco 2 (Modo de jogo depois) -->
+                <div class="col-12 col-md-6 d-flex justify-content-start align-items-center">
+                    <h2 class="me-2">Modo de jogo:</h2>
+                    <select id="modo-jogo" class="form-select" style="width: auto;">
+                        <option value="casual">Casual</option>
+                        <option value="hard">Hard</option>
+                        <option value="impossivel">Impossível</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button class="btn btn-success w-100" onclick="startQuiz()">Iniciar Quiz</button>
+            <h2 class="textoCenter"></h2>
+        </div>
+
+        <div id="quiz" style="display: none;">
+            <p id="pergunta-quiz" class="mt-3 pergunta-text"></p>
+            <div id="opcoes"></div>
+            <button id="next-question-button" class="btn btn-warning" onclick="nextQuestion()">Próxima
+                Pergunta</button>
+        </div>
+
+        <div class="row">
+            <div class="col-12 d-flex flex-column flex-md-row align-items-center justify-content-center">
+                <h2 class="mb-3 mb-md-0 me-md-3">Score: <span id="score">0</span></h2>
+                <div id="timer" class="mb-4 mb-md-0 me-md-3" style="font-size: 18px; color: red;"></div>
+                <button class="btn btn-danger" onclick="resetScore()">Resetar Score</button>
+            </div>
+        </div>
+
+
+
+
+    </div>
+    </div>
+    <!-- ------------------------------ começa aqui as inportações de audio para os alertas ------------------- -->
+    <!-- executar alerta para erro e sucesso nas perguntas -->
+    <!-- alerta de sucesso com som -->
+    <audio id="sucesso-sound" preload="auto">
+        <source src="acertou.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <!-- alerta erro com som-->
+    <audio id="erro-sound" preload="auto">
+        <source src="errou.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <!-- alerta conclusão com som-->
+    <audio id="conclusao-sound" preload="auto">
+        <source src="conclusao.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <!-- alerta tenpo esgotado com som-->
+    <audio id="tempo-sound" preload="auto">
+        <source src="timeout.mp3" type="audio/mpeg">
+        Seu navegador não suporta o elemento de áudio.
+    </audio>
+
+    <script>
+        // Chama a função para exibir a aba "respostas" (Quiz) ao carregar a página elaserá a pagina inicial
+        window.onload = function () {
+            showTab('respostas');
+        };
+    </script>
+    <script src="quiz.js"></script>
+</body>
+
+</html>
