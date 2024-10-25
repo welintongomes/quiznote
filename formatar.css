@@ -128,7 +128,6 @@
     .header {
         text-align: left; /* Alinha o texto à esquerda */
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adiciona sombra nas bordas */
-        
         background: white; /* Fundo branco */
         border-radius: 8px; /* Bordas arredondadas, opcional */
         
@@ -193,22 +192,11 @@
         box-shadow: 0 4px 20px rgba(0, 123, 255, 0.5), 0 -2px 5px rgba(0, 0, 0, 0.3); /* Efeito de estufamento ao focar */
     }
     
-    .custom-tabs {
-        display: flex; /* Ativa o Flexbox */
-        justify-content: space-between; /* Distribui os itens uniformemente */
-        width: 100%; /* Faz a barra ocupar toda a largura */
-    }
-    
     .custom-tab {
         flex: 1; /* Faz cada item ocupar o mesmo espaço */
         text-align: center; /* Centraliza o texto dentro de cada item */
     }
  /*-------------------------------*/
- .custom-tabs {
-    
-    border: none; /* Remove qualquer borda */
-    box-shadow: none; /* Remove qualquer sombra */
-}
 
 .custom-tab {
     
