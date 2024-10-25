@@ -602,7 +602,7 @@ senão padrão neutral será usado*/
 .header {
     text-align: left; /* Alinha o texto à esquerda */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Adiciona sombra nas bordas */
-    padding: 4px; /* Adiciona espaço interno */
+    padding: 14px; /* Adiciona espaço interno */
     background: white; /* Fundo branco */
     border-radius: 8px; /* Bordas arredondadas, opcional */
 }
@@ -665,4 +665,35 @@ textarea#pergunta{
     border: 1px solid #888;
     width: 80%;
 }
+.custom-tabs {
+    display: flex; /* Ativa o Flexbox */
+    justify-content: space-between; /* Distribui os itens uniformemente */
+    width: 100%; /* Faz a barra ocupar toda a largura */
+}
 
+.custom-tab {
+    flex: 1; /* Faz cada item ocupar o mesmo espaço */
+    text-align: center; /* Centraliza o texto dentro de cada item */
+}
+/*-------------------------------*/
+.custom-tabs {
+border: none; /* Remove qualquer borda */
+box-shadow: none; /* Remove qualquer sombra */
+}
+
+.custom-tab {
+border: none; /* Remove bordas dos links */
+border-radius: 0; /* Remove cantos arredondados */
+background-color: whitesmoke; /* Cor de fundo padrão */
+transition: background-color 0.3s; /* Transição suave */
+}
+
+.custom-tab.active {
+background-color: #e7e7e7; /* Cor de fundo para a aba ativa */
+color: #333; /* Cor do texto para a aba ativa */
+border-bottom: none; /* Remove a borda inferior da aba ativa */
+}
+
+.custom-tab:hover {
+background-color: #d0d0d0; /* Cor ao passar o mouse */
+}
