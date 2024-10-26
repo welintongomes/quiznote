@@ -122,11 +122,11 @@
         </div>
 
         <div class="respons">
-            <button accesskey="s" title="ALT+S SALVAR" id="add-button" class="btn btn-primary" onclick="addQuestion()">Adicionar Nova Pergunta</button>
-            <button class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
+            <button accesskey="s" title="ALT+S Salvar Nota" id="add-button" class="btn btn-primary" onclick="addQuestion()">Adicionar Nova Pergunta</button>
+            <button accesskey="d" title="ALT+D Exportar Arquivo" class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
             <button class="btn btn-danger" onclick="deleteAllQuestions()">Excluir Todas as Perguntas</button>
             <!-- Botão para selecionar arquivo -->
-            <button id="uploadButton" class="btn btn-primary"
+            <button accesskey="s" title="ALT+A Importar Arquivo" id="uploadButton" class="btn btn-primary"
                 onclick="document.getElementById('fileInput').click();">Importar Perguntas .JSON</button>
         </div>
 
