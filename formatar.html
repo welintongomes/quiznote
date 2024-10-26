@@ -37,10 +37,15 @@
     </div>
     
 
-    <div class=" row mx-auto col-12 m-2 justify-content-between">
-        <button id="btn-copiar" class="btn btn-primary w-50">Copiar Código</button>
-        <button class="btn btn-warning w-50" onclick="limparSessionStorage()">Limpar Campos</button>
+    <div class="row mx-auto col-12 m-2 g-2">
+        <div class="col">
+            <button id="btn-copiar" class="btn btn-primary w-100">Copiar Código</button>
+        </div>
+        <div class="col">
+            <button class="btn btn-warning w-100" onclick="limparSessionStorage()">Limpar Campos</button>
+        </div>
     </div>
+    
     
 
     <div class="form-section custom-form-section">
@@ -86,27 +91,33 @@
     </div>
     <!-- -------------------------------------------------------------------------------------------------------- -->
     <!-- botões para salvar arquivos com os caracteres e carregar no indexedDB -->
-    <div class=" row mx-auto col-12 col-lg-12 mb-2">
-        <button id="btnSalvarPreset" class="btn w-50 btn-primary">Salvar Preset</button>
-        <button id="btnCarregarPresets" class="btn w-50 btn-secondary">Carregar Presets</button>
+    <div class="row mx-auto col-12 col-lg-12 mb-2 g-2">
+        <div class="col">
+            <button id="btnSalvarPreset" class="btn w-100 btn-primary">Salvar Preset</button>
+        </div>
+        <div class="col">
+            <button id="btnCarregarPresets" class="btn w-100 btn-secondary">Carregar Presets</button>
+        </div>
     </div>
+    
     <ul id="listaPresets"></ul>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
-    <!-- fim botão switch para mudar o tema -->
     <script src="bootstrap.bundle.min.js"></script>
-
-    <!-- Fim botões para salvar arquivos com os caracteres e carregar no indexedDB -->
-    <div class=" row mx-auto col-12 col-lg-12 mb-2">
-        <button id="btnSalvarArquivo" class="btn btn-primary w-50">
-            Salvar Preset e Substituições em Arquivo
-        </button>
-        <button id="btnCarregarArquivo" class="btn btn-secondary w-50">
-            Carregar Preset e Substituições de Arquivo
-        </button>
+    
+    <div class="row mx-auto col-12 col-lg-12 mb-2 g-2">
+        <div class="col">
+            <button id="btnSalvarArquivo" class="btn w-100 btn-primary">
+                Salvar Preset e Substituições em Arquivo
+            </button>
+        </div>
+        <div class="col">
+            <button id="btnCarregarArquivo" class="btn w-100 btn-secondary">
+                Carregar Preset e Substituições de Arquivo
+            </button>
+        </div>
     </div>
-</div>
+    
     <input type="file" id="fileInput" style="display: none" />
 
     <script src="formatar.js"></script>

@@ -707,6 +707,56 @@ function exportDatabase() {
         URL.revokeObjectURL(url);
     };
 }
+function exportScore() {
+    const scoreData = {
+        scores: scores, // Supondo que 'scores' seja um objeto que contém os scores por categoria
+        globalScore: globalScore // O score global
+    };
+
+    const json = JSON.stringify(scoreData);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scores.json";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+document.getElementById('exportarScore').onclick = exportScore;
+function importScore() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+
+    input.onchange = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                scores = data.scores; // Presume que 'scores' é a variável que armazena os scores
+                globalScore = data.globalScore; // Atualiza o score global
+
+                alert("Importação de scores concluída com sucesso!");
+                // Atualize a UI, se necessário
+                document.getElementById("score").textContent = scores[currentCategory];
+                document.getElementById("global-score").textContent = globalScore;
+            } catch (error) {
+                console.error("Erro ao importar scores:", error);
+                alert("Erro ao importar scores. Verifique o formato do arquivo.");
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click(); // Simula um clique no input
+}
+document.getElementById('importarScore').onclick = importScore;
 
 function toggleDescricao(descricaoId) {
     const descricaoInput = document.getElementById(descricaoId);

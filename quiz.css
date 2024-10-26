@@ -733,3 +733,12 @@ select#modo-jogo.form-select:hover{
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
     transition: box-shadow 0.4s ease;
 }
+div.row.mx-auto.col-12.m-2 {
+    --bs-gutter-x: 0.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1* var(--bs-gutter-y));
+    margin-right: calc(-.5* var(--bs-gutter-x));
+    margin-left: calc(-.5* var(--bs-gutter-x));
+}
