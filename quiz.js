@@ -1,5 +1,7 @@
 let db;
 let score = 0;
+let globalScore = 0; // Score global
+let scores = {}; // Scores por categoria
 let questions = [];
 let currentQuestion = null;
 let usedQuestions = []; // Array para rastrear perguntas já usadas
@@ -54,6 +56,7 @@ request.onsuccess = function (event) {
     db = event.target.result;
     loadQuestions();
     loadScore();
+    loadGlobalScore(); // Carrega o score global
     loadCategorias(); // Carrega as categorias no início
 };
 
@@ -315,7 +318,7 @@ function filterQuestionsByCategory() {
     }
 }
 
-function loadFilteredQuestions(filteredQuestions) {
+function loadFilteredQuestions(filteredQuestions) {//=========================================================
     const lista = document.getElementById("lista-perguntas");
     lista.innerHTML = ''; // Limpa a lista a cada nova seleção
 
@@ -388,9 +391,16 @@ function loadFilteredQuestions(filteredQuestions) {
                 
                 if (userConfirmed) {
                     // Penaliza ao mostrar detalhes
-                    score--; // Subtrai 1 ponto do score
-                    document.getElementById("score").textContent = score; // Atualiza o score na interface
-                    saveScore(); // Salva o score atualizado
+                    scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
+                    globalScore--; // Penaliza o score global
+                    
+                    
+                    // Atualiza a interface
+                    document.getElementById("score").textContent = scores[currentCategory]; // Atualiza o score da categoria
+                    document.getElementById("global-score").textContent = globalScore; // Atualiza o score global
+                    
+                    saveScore(); // Salva o score da categoria
+                    saveGlobalScore(); // Salva o score global
                     
                     // Mostra os detalhes
                     detailsContainer.style.display = "block"; 
@@ -415,6 +425,33 @@ function loadFilteredQuestions(filteredQuestions) {
         lista.appendChild(li);
     });
 }
+function saveGlobalScore() {
+    const transaction = db.transaction(["score"], "readwrite");
+    const store = transaction.objectStore("score");
+
+    store.put({ id: 1, globalScore: globalScore, scores: scores }); // Salva o score global
+}
+
+
+function updateGlobalScore() {
+    globalScore = Object.values(scores).reduce((acc, score) => acc + score, 0);
+    document.getElementById("global-score").textContent = globalScore; // Atualiza o score global na interface
+    saveGlobalScore(); // Salva o score global atualizado
+}
+function loadGlobalScore() {
+    const transaction = db.transaction(["score"], "readonly");
+    const store = transaction.objectStore("score");
+    const request = store.get(1);
+
+    request.onsuccess = function (event) {
+        if (event.target.result) {
+            globalScore = event.target.result.globalScore || 0; // Carrega o score global
+            document.getElementById("global-score").textContent = globalScore; // Atualiza a interface
+        } else {
+            globalScore = 0; // Inicializa se não houver score
+        }
+    };
+}
 
 
 function updateDatalist() {
@@ -427,6 +464,25 @@ function updateDatalist() {
         datalist.appendChild(option);
     });
 }
+// relacionado ao score ------------------------------------------------
+function loadScoreForCategory(categoria) {
+    const transaction = db.transaction(["score"], "readonly");
+    const store = transaction.objectStore("score");
+    const request = store.get(1);
+
+    request.onsuccess = function (event) {
+        if (event.target.result) {
+            scores = event.target.result.scores || {}; // Carrega todos os scores
+            // Inicializa o score da categoria, se ainda não existir
+            if (scores[categoria] === undefined) {
+                scores[categoria] = 0; // Inicializa como 0
+            }
+            const currentCategoryScore = scores[categoria]; // Obtem o score da categoria atual
+            document.getElementById("score").textContent = currentCategoryScore; // Atualiza o score na interface
+        }
+    };
+}
+
 
 function loadScore() {
     const transaction = db.transaction(["score"], "readonly");
@@ -435,8 +491,9 @@ function loadScore() {
 
     request.onsuccess = function (event) {
         if (event.target.result) {
-            score = event.target.result.score;
-            document.getElementById("score").textContent = score;
+            scores = event.target.result.scores || {}; // Carrega scores por categoria
+            const currentCategoryScore = scores[currentCategory] || 0; // Obtem o score da categoria atual
+            document.getElementById("score").textContent = currentCategoryScore;
         }
     };
 }
@@ -444,17 +501,22 @@ function loadScore() {
 function saveScore() {
     const transaction = db.transaction(["score"], "readwrite");
     const store = transaction.objectStore("score");
-    store.put({ id: 1, score: score });
+    
+    scores[currentCategory] = scores[currentCategory] || 0; // Inicializa se não existir
+    store.put({ id: 1, scores: scores });
 }
-
+//fim relacionado ao score -----------------------------------------------
 function startQuiz() {
+    
     currentCategory = document.getElementById("categoria-quiz").value;
     if (!currentCategory) {
         alertaTempo();
         showModalMessage("Selecione uma categoria para começar.",'alert');
         return;
     }
-
+    // Carrega o score da categoria antes de começar
+    loadScoreForCategory(currentCategory);
+    
     // Obtenha o modo de jogo selecionado
     const modoJogo = document.getElementById("modo-jogo").value;
 
@@ -474,6 +536,7 @@ function startQuiz() {
     usedQuestions = [];
     document.getElementById("quiz").style.display = 'block';
     loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
+    loadGlobalScore(); // Carrega o score global antes de começar
 }
 
 async function loadNextQuestion(perguntasFiltradas) {
@@ -557,13 +620,14 @@ function handleTimeOut() {
     const modoJogo = document.getElementById("modo-jogo").value;
     switch (modoJogo) {
         case "hard":
-            score--; // Perde 1 ponto
+            scores[currentCategory]--; // Perde 1 ponto na categoria atual
             break;
         case "impossivel":
-            score -= 2; // Perde 2 pontos
+            scores[currentCategory] -= 2; // Perde 2 pontos na categoria atual
             break;
     }
-    document.getElementById("score").textContent = score;
+    updateGlobalScore(); // Atualiza o score global após penalidade por tempo
+    document.getElementById("score").textContent = scores[currentCategory];
     saveScore(); // Salva o score
     loadNextQuestion(questions.filter(q => q.categoria === currentCategory)); // Carrega a próxima pergunta
 }
@@ -578,7 +642,7 @@ async function checkAnswer(selectedIndex) {
     document.getElementById("timer").textContent = "";
 
     if (selectedAnswer === respostaCorreta) {
-        score++;
+        scores[currentCategory] = (scores[currentCategory] || 0) + 1; // Incrementa o score da categoria
         alertaSucesso();
         await showModalMessage(`Correto! A resposta é: ${currentQuestion.respostas[selectedIndex]}\nDescrição: ${descricao}`, 'success');
     } else {
@@ -588,16 +652,20 @@ async function checkAnswer(selectedIndex) {
         const modoJogo = document.getElementById("modo-jogo").value;
         switch (modoJogo) {
             case "hard":
-                score--;
+                scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Decrementa o score
+                globalScore--; // Penaliza o score global
                 break;
             case "impossivel":
-                score -= 2;
+                scores[currentCategory] = (scores[currentCategory] || 0) - 2; // Decrementa o score
+                globalScore -= 2; // Penaliza o score global
                 break;
         }
     }
 
-    document.getElementById("score").textContent = score;
-    saveScore();
+    // Não atualize o score global aqui
+    document.getElementById("score").textContent = scores[currentCategory];
+    saveScore(); // Salva o score da categoria
+    updateGlobalScore(); // Atualiza o score global na interface e no armazenamento
     loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
 }
 

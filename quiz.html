@@ -162,7 +162,7 @@
 
                 <!-- Bloco 2 (Modo de jogo depois) -->
                 <div class="col-12 col-md-6 d-flex justify-content-start align-items-center">
-                    <h2 class="me-2">Modo de jogo:</h2>
+                    <h4 style="font-weight: bold;" class="me-2">Modo de jogo:</h4>
                     <select id="modo-jogo" class="form-select" style="width: auto;">
                         <option value="casual">Casual</option>
                         <option value="hard">Hard</option>
@@ -190,10 +190,14 @@
                 <div id="timer" class="mb-4 mb-md-0 me-md-3" style="font-size: 18px; color: red;"></div>
                 <button class="btn btn-danger" onclick="resetScore()">Resetar Score</button>
             </div>
+            
+            
         </div>
 
 
-
+        <div>
+            Score Global: <span id="global-score">0</span>
+        </div>
 
     </div>
     </div>

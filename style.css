@@ -242,5 +242,7 @@ button:hover {
 #pesquisar:hover {
     border-color: #ff5722; /* Mudar a cor da borda ao passar o mouse */
 }
-
+h4{
+text-shadow: 2px 2px 5px rgba(168, 163, 163, 0.7);
+}
 
