@@ -231,7 +231,7 @@ p {
 /*estilizar os dropdown add perguntas*/
 #categoria-quiz,
 #categoria-select {
-    padding: 1px;
+    padding: 0px;
     /* Ajuste o padding conforme necessário */
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     /* Sombra padrão */
@@ -723,4 +723,13 @@ button.custom-tab {
     text-decoration: none; /* Remove o sublinhado padrão dos links */
     color: #333; /* Cor do texto */
     transition: background-color 0.3s; /* Efeito de transição suave */
+}
+select#modo-jogo.form-select{
+    padding: 0 64px 0 0; /* Topo: 0px, Direita: 64, Baixo: 0, Esquerda: 0px */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    
+}
+select#modo-jogo.form-select:hover{
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.4s ease;
 }

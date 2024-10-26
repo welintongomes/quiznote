@@ -149,28 +149,31 @@
 
         <div class="container">
             <div class="row justify-content-center">
-
                 <!-- Bloco 1 (Categoria primeiro) -->
-                <div class="col-12 col-md-6 d-flex justify-content-start align-items-center mb-3">
-                    <label style="font-size: x-large; font-weight: bold;" for="categoria-quiz"
-                        class="form-label me-2 mb-0">Categoria:</label>
-                    <select id="categoria-quiz" class="form-select" style="width: auto;">
-                        <option value="">Selecione uma categoria</option>
-                        <!-- As opções de categorias serão preenchidas dinamicamente -->
-                    </select>
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="d-flex justify-content-start align-items-center w-100">
+                        <label style="font-size: x-large; font-weight: bold;" for="categoria-quiz" class="form-label me-2 mb-0">Categoria:</label>
+                        <select id="categoria-quiz" class="form-select w-100">
+                            <option value="">Selecione uma categoria</option>
+                            <!-- As opções de categorias serão preenchidas dinamicamente -->
+                        </select>
+                    </div>
                 </div>
-
+        
                 <!-- Bloco 2 (Modo de jogo depois) -->
-                <div class="col-12 col-md-6 d-flex justify-content-start align-items-center">
-                    <h4 style="font-weight: bold;" class="me-2">Modo de jogo:</h4>
-                    <select id="modo-jogo" class="form-select" style="width: auto;">
-                        <option value="casual">Casual</option>
-                        <option value="hard">Hard</option>
-                        <option value="impossivel">Impossível</option>
-                    </select>
+                <div class="col-12 col-md-6">
+                    <div class="d-flex justify-content-start align-items-center w-100">
+                        <h4 style="font-weight: bold;" class="me-2">Modo:&ensp;&ensp;&ensp;&ensp;&ensp;</h4>
+                        <select id="modo-jogo" class="form-select w-100">
+                            <option value="casual">Casual</option>
+                            <option value="hard">Hard</option>
+                            <option value="impossivel">Impossível</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
+        
 
         <div>
             <button class="btn btn-success w-100" onclick="startQuiz()">Iniciar Quiz</button>
