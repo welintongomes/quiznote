@@ -66,7 +66,7 @@ function showTab(tabName) {
     });
     document.getElementById(tabName).style.display = 'block';
 }
-
+//funçao adicionar perguntas ao quiz
 function addQuestion() {
     const pergunta = document.getElementById("pergunta").value;
     const respostas = Array.from(document.querySelectorAll('.resposta')).map(input => input.value);
@@ -115,7 +115,52 @@ function addQuestion() {
     }
 }
 
+function populateQuizCategoryDropdown() {
+    const categoriaSelect = document.getElementById("categoria-quiz");
+    categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>'; // Limpa as opções
 
+    categorias.forEach(categoria => {
+        const option = document.createElement("option");
+        option.value = categoria;
+        option.textContent = categoria;
+        categoriaSelect.appendChild(option);
+    });
+}
+//iniciar quiz ---------------------------------------------------------------------------------
+function startQuiz() {
+    
+    currentCategory = document.getElementById("categoria-quiz").value;
+    if (!currentCategory) {
+        alertaTempo();
+        showModalMessage("Selecione uma categoria para começar.",'alert');
+        return;
+    }
+    // Carrega o score da categoria antes de começar
+    loadScoreForCategory(currentCategory);
+    
+    // Obtenha o modo de jogo selecionado
+    const modoJogo = document.getElementById("modo-jogo").value;
+
+    // Define o tempo baseado no modo de jogo
+    switch (modoJogo) {
+        case "casual":
+            tempo = null; // Sem limite de tempo
+            break;
+        case "hard":
+            tempo = 10; // 10 segundos
+            break;
+        case "impossivel":
+            tempo = 5; // 5 segundos
+            break;
+    }
+
+    usedQuestions = [];
+    document.getElementById("quiz").style.display = 'block';
+    loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
+    loadGlobalScore(); // Carrega o score global antes de começar
+}
+
+//fim funçao adicionar perguntas ao quiz
 function clearInputFields() {
     document.getElementById("pergunta").value = '';
     document.querySelectorAll('.resposta').forEach(input => input.value = '');
@@ -279,17 +324,7 @@ function loadCategorias() {
     };
 }
 
-function populateQuizCategoryDropdown() {
-    const categoriaSelect = document.getElementById("categoria-quiz");
-    categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>'; // Limpa as opções
 
-    categorias.forEach(categoria => {
-        const option = document.createElement("option");
-        option.value = categoria;
-        option.textContent = categoria;
-        categoriaSelect.appendChild(option);
-    });
-}
 
 function populateCategoryDropdown() {
     const categoriaSelect = document.getElementById("categoria-select");
@@ -317,7 +352,41 @@ function filterQuestionsByCategory() {
         loadQuestions(); // Se nenhuma categoria for selecionada, carrega todas as perguntas
     }
 }
+// Função de busca
+// Função para normalizar texto removendo acentos e convertendo para minúsculas
+function normalizarTexto(texto) {
+    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
 
+// Função de busca aprimorada
+function searchQuestions() {
+    const searchTerm = normalizarTexto(document.getElementById("search-bar").value);
+    const selectedCategory = document.getElementById("categoria-select").value;
+    const searchTerms = searchTerm.split(" "); // Divide o termo de busca em palavras
+
+    // Filtra as perguntas com base na categoria selecionada e nos termos de busca
+    const filteredQuestions = questions.filter(question => {
+        if (selectedCategory && question.categoria !== selectedCategory) return false; // Filtra pela categoria
+
+        // Normaliza o texto da pergunta e das respostas
+        const questionText = normalizarTexto(question.pergunta);
+        const respostasText = question.respostas.map(resp => normalizarTexto(resp)).join(" ");
+        const descricaoText = question.descricaoRespostas.map(desc => normalizarTexto(desc)).join(" ");
+
+        // Verifica se todos os termos de busca estão na pergunta ou nas respostas
+        return searchTerms.every(term =>
+            questionText.includes(term) ||
+            respostasText.includes(term) ||
+            descricaoText.includes(term)
+        );
+    });
+
+    // Carrega as perguntas filtradas
+    loadFilteredQuestions(filteredQuestions);
+}
+
+
+// fim Função de busca
 function loadFilteredQuestions(filteredQuestions) {//=========================================================
     const lista = document.getElementById("lista-perguntas");
     lista.innerHTML = ''; // Limpa a lista a cada nova seleção
@@ -505,39 +574,8 @@ function saveScore() {
     scores[currentCategory] = scores[currentCategory] || 0; // Inicializa se não existir
     store.put({ id: 1, scores: scores });
 }
-//fim relacionado ao score -----------------------------------------------
-function startQuiz() {
-    
-    currentCategory = document.getElementById("categoria-quiz").value;
-    if (!currentCategory) {
-        alertaTempo();
-        showModalMessage("Selecione uma categoria para começar.",'alert');
-        return;
-    }
-    // Carrega o score da categoria antes de começar
-    loadScoreForCategory(currentCategory);
-    
-    // Obtenha o modo de jogo selecionado
-    const modoJogo = document.getElementById("modo-jogo").value;
+//fim relacionado ao score ---------------------------------------------------------------------
 
-    // Define o tempo baseado no modo de jogo
-    switch (modoJogo) {
-        case "casual":
-            tempo = null; // Sem limite de tempo
-            break;
-        case "hard":
-            tempo = 10; // 10 segundos
-            break;
-        case "impossivel":
-            tempo = 5; // 5 segundos
-            break;
-    }
-
-    usedQuestions = [];
-    document.getElementById("quiz").style.display = 'block';
-    loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
-    loadGlobalScore(); // Carrega o score global antes de começar
-}
 
 async function loadNextQuestion(perguntasFiltradas) {
     if (usedQuestions.length === perguntasFiltradas.length) {
@@ -595,8 +633,9 @@ respostasComIndices.forEach(({ resposta, index }) => {
         document.getElementById("next-question-button").disabled = false;
     }
 }
+//fim funçao iniciar o quiz ------------------------------------------------------------------------------
 
-
+//funçao de timer de tempo --------------------------------------------------------------------------------
 function startTimer(tempoLimite) {
     document.getElementById("timer").textContent = `Tempo restante: ${tempoLimite} segundos`; // Exibe o tempo restante
     clearInterval(timer); // Limpa qualquer temporizador anterior
@@ -631,6 +670,7 @@ function handleTimeOut() {
     saveScore(); // Salva o score
     loadNextQuestion(questions.filter(q => q.categoria === currentCategory)); // Carrega a próxima pergunta
 }
+//fim funçao de timer de tempo ----------------------------------------------------------------------------
 
 async function checkAnswer(selectedIndex) {
     const options = ["A", "B", "C", "D"];
@@ -671,14 +711,30 @@ async function checkAnswer(selectedIndex) {
 
 
 function nextQuestion() {
-    // Diminui o score
-    score--;
-    document.getElementById("score").textContent = score;
-    saveScore(); // Salva o score em indexedDB
+    // Pergunta ao usuário se ele deseja continuar e perder 1 ponto
+    const userConfirmed = confirm("Você será penalizado em 1 ponto ao avançar para a próxima pergunta. Deseja continuar?");
 
-    // Carrega a próxima pergunta
-    loadNextQuestion(questions.filter(q => q.categoria === currentCategory)); // Mantém na categoria atual
+    if (userConfirmed) {
+        // Penaliza o score
+        score--;
+        scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
+        globalScore--; // Penaliza o score global
+
+        // Atualiza a interface
+        document.getElementById("score").textContent = score; // Atualiza o score da categoria
+        document.getElementById("global-score").textContent = globalScore; // Atualiza o score global
+
+        // Salva os scores atualizados
+        saveScore(); // Salva o score da categoria em IndexedDB
+        saveGlobalScore(); // Salva o score global em IndexedDB
+
+        // Carrega a próxima pergunta mantendo na categoria atual
+        loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
+    } else {
+        console.log("Usuário cancelou a penalização.");
+    }
 }
+
 
 function resetScore() {
     if (confirm("Você tem certeza que deseja resetar o score?")) {

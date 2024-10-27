@@ -125,12 +125,13 @@ document.getElementById('excluirTodasNotas').onclick = () => {
     }
 };
 
+
+// Função para pesquisar notas
+
 // Função para normalizar texto removendo acentos
 function normalizarTexto(texto) {
     return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
-
-// Função para pesquisar notas
 document.getElementById('pesquisar').oninput = function () {
     const termo = normalizarTexto(this.value);
     const lista = document.getElementById('resultado');

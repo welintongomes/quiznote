@@ -126,7 +126,7 @@
             <button accesskey="d" title="ALT+D Exportar Arquivo" class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
             <button class="btn btn-danger" onclick="deleteAllQuestions()">Excluir Todas as Perguntas</button>
             <!-- Botão para selecionar arquivo -->
-            <button accesskey="s" title="ALT+A Importar Arquivo" id="uploadButton" class="btn btn-primary"
+            <button accesskey="a" title="ALT+A Importar Arquivo" id="uploadButton" class="btn btn-primary"
                 onclick="document.getElementById('fileInput').click();">Importar Perguntas .JSON</button>
         </div>
 
@@ -134,8 +134,15 @@
         <input type="file" id="fileInput" style="display: none;" onchange="importDatabase(event)" accept=".json">
 
         <h2 class="textPA">Perguntas Adicionadas</h2>
-        <div>
+
+        <!-- campo para buscar perguntas -->
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Buscar perguntas..." oninput="searchQuestions()" />
+            <button class="btn btn-primary" onclick="searchQuestions()">Buscar</button>
         </div>
+
+        
+        <!-- fim campo para buscar perguntas -->
         <div class="dividirNaTela">
             <label for="categoria-select" class="dropAddPerguntas">
                 <H4>Selecione uma categoria:</H4>
@@ -160,7 +167,7 @@
                         <label style="font-size: x-large; font-weight: bold;" for="categoria-quiz"
                             class="form-label me-2 mb-0">Categoria:</label>
                         <select id="categoria-quiz" class="form-select w-100">
-                            <option value="">Selecione uma categoria</option>
+                            <option value="">Todas</option>
                             <!-- As opções de categorias serão preenchidas dinamicamente -->
                         </select>
                     </div>

@@ -725,6 +725,7 @@ button.custom-tab {
     transition: background-color 0.3s; /* Efeito de transição suave */
 }
 select#modo-jogo.form-select{
+    margin-bottom: 9px;
     padding: 0 64px 0 0; /* Topo: 0px, Direita: 64, Baixo: 0, Esquerda: 0px */
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     
@@ -742,3 +743,42 @@ div.row.mx-auto.col-12.m-2 {
     margin-right: calc(-.5* var(--bs-gutter-x));
     margin-left: calc(-.5* var(--bs-gutter-x));
 }
+.search-container {
+    display: flex;
+    flex-direction: column; /* Alinha em coluna para telas pequenas */
+    width: 100%;
+}
+
+#search-bar {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px; /* Espaço entre input e botão em telas pequenas */
+}
+
+button {
+    width: 100%; /* Botão ocupa 100% em telas pequenas */
+    padding: 10px;
+}
+
+/* Estilos para telas grandes */
+@media (min-width: 768px) {
+    .search-container {
+        
+        flex-direction: row; /* Alinha em linha para telas grandes */
+        align-items: center; /* Centraliza verticalmente os itens */
+    }
+
+    #search-bar {
+        margin-top: 11px;
+        margin-right: 5px;
+        flex: 1; /* O campo de pesquisa ocupa o espaço restante */
+        margin-bottom: 11px; /* Remove a margem em telas grandes */
+    }
+
+    button {
+        width: auto; /* O botão tem tamanho automático */
+        padding: 5px 10px; /* Ajusta o tamanho do botão */
+        margin-left: 10px; /* Espaço entre input e botão */
+    }
+}
+
