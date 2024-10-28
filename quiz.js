@@ -90,9 +90,9 @@ function addQuestion() {
         // Adiciona a categoria ao array e ao dropdown de categorias se não existir
         if (!categorias.includes(categoria)) {
             categorias.push(categoria);
-            
+
             // Atualiza o dropdown de categorias para filtragem
-            const categoriaSelect = document.getElementById("categoria-select"); 
+            const categoriaSelect = document.getElementById("categoria-select");
             const option = document.createElement("option");
             option.value = categoria;
             option.textContent = categoria;
@@ -117,7 +117,7 @@ function addQuestion() {
 
 function populateQuizCategoryDropdown() {
     const categoriaSelect = document.getElementById("categoria-quiz");
-    categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>'; // Limpa as opções
+    categoriaSelect.innerHTML = '<option value="all">Todas as perguntas</option>'; // Define "Todas" como primeira opção
 
     categorias.forEach(categoria => {
         const option = document.createElement("option");
@@ -126,18 +126,19 @@ function populateQuizCategoryDropdown() {
         categoriaSelect.appendChild(option);
     });
 }
-//iniciar quiz ---------------------------------------------------------------------------------
+
+//iniciar quiz
 function startQuiz() {
-    
+
     currentCategory = document.getElementById("categoria-quiz").value;
     if (!currentCategory) {
         alertaTempo();
-        showModalMessage("Selecione uma categoria para começar.",'alert');
+        showModalMessage("Selecione uma categoria para começar.", 'alert');
         return;
     }
     // Carrega o score da categoria antes de começar
     loadScoreForCategory(currentCategory);
-    
+
     // Obtenha o modo de jogo selecionado
     const modoJogo = document.getElementById("modo-jogo").value;
 
@@ -280,28 +281,46 @@ function saveEdit(id) {
         showModalMessage("Preencha todos os campos corretamente!");
     }
 }
-
+//deletar perguntas
 function deleteQuestion(id) {
-    if (confirm("Você tem certeza que deseja excluir esta pergunta?")) {
-        const transaction = db.transaction(["questions"], "readwrite");
-        const store = transaction.objectStore("questions");
-        store.delete(id);
-        loadQuestions();
-    }
+    showConfirmationModal(
+        "Você tem certeza que deseja excluir esta pergunta?", // Mensagem
+        function () {
+            // Ação de confirmação
+            const transaction = db.transaction(["questions"], "readwrite");
+            const store = transaction.objectStore("questions");
+            store.delete(id);
+            loadQuestions(); // Recarrega as perguntas
+        },
+        function () {
+            console.log("Exclusão de pergunta cancelada pelo usuário."); // Ação de cancelamento
+        }
+    );
 }
+//fim deletar perguntas
 
+//deletar todas as perguntas com confirmação
 function deleteAllQuestions() {
-    if (confirm("Você tem certeza que deseja excluir todas as perguntas?")) {
-        const transaction = db.transaction(["questions"], "readwrite");
-        const store = transaction.objectStore("questions");
-        store.clear().onsuccess = function () {
-            loadQuestions(); // Recarrega a lista de perguntas
-            loadCategorias(); // Atualiza as categorias
-            alertaSucesso();
-            showModalMessage("Todas as perguntas foram excluídas.",'alert');
-        };
-    }
+    // Exibe o modal de confirmação com a mensagem e callbacks
+    showConfirmationModal(
+        "Você tem certeza que deseja excluir todas as perguntas?", // Mensagem do modal
+        function () { // Callback de confirmação
+            const transaction = db.transaction(["questions"], "readwrite");
+            const store = transaction.objectStore("questions");
+
+            store.clear().onsuccess = function () {
+                loadQuestions(); // Recarrega a lista de perguntas
+                loadCategorias(); // Atualiza as categorias
+                alertaSucesso();
+                showModalMessage("Todas as perguntas foram excluídas.", 'alert');
+            };
+        },
+        function () { // Callback de cancelamento (opcional)
+            console.log("Ação de exclusão de todas as perguntas foi cancelada.");
+        }
+    );
 }
+//fim deletar todas as perguntas com confirmação
 
 function loadCategorias() {
     const transaction = db.transaction(["questions"], "readonly");
@@ -455,36 +474,38 @@ function loadFilteredQuestions(filteredQuestions) {//===========================
 
         toggleDetailsButton.onclick = () => {
             if (detailsContainer.style.display === "none") {
-                // Pergunta ao usuário se ele deseja continuar e perder 1 ponto
-                const userConfirmed = confirm("Você será penalizado em 1 ponto. Deseja continuar?");
-                
-                if (userConfirmed) {
-                    // Penaliza ao mostrar detalhes
-                    scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
-                    globalScore--; // Penaliza o score global
-                    
-                    
-                    // Atualiza a interface
-                    document.getElementById("score").textContent = scores[currentCategory]; // Atualiza o score da categoria
-                    document.getElementById("global-score").textContent = globalScore; // Atualiza o score global
-                    
-                    saveScore(); // Salva o score da categoria
-                    saveGlobalScore(); // Salva o score global
-                    
-                    // Mostra os detalhes
-                    detailsContainer.style.display = "block"; 
-                    toggleDetailsButton.textContent = "Ocultar Detalhes"; // Muda o texto do botão
-                } else {
-                    // Se o usuário não confirmar, não faz nada
-                    console.log("Usuário cancelou a penalização.");
-                }
+                // Exibe o modal de penalização e, ao confirmar, mostra os detalhes
+                showConfirmationModal(
+                    "Você será penalizado em 1 ponto. Deseja continuar?", // Mensagem do modal
+                    function () {
+                        // Ação ao confirmar: penaliza e mostra os detalhes
+                        scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
+                        globalScore--; // Penaliza o score global
+
+                        // Atualiza a interface
+                        document.getElementById("score").textContent = scores[currentCategory]; // Atualiza o score da categoria
+                        document.getElementById("global-score").textContent = globalScore; // Atualiza o score global
+
+                        // Salva os scores atualizados
+                        saveScore(); // Salva o score da categoria
+                        saveGlobalScore(); // Salva o score global
+
+                        // Mostra os detalhes
+                        detailsContainer.style.display = "block";
+                        toggleDetailsButton.textContent = "Ocultar Detalhes"; // Muda o texto do botão
+                    },
+                    function () {
+                        // Ação ao cancelar
+                        console.log("Usuário cancelou a penalização.");
+                    }
+                );
             } else {
-                // Apenas oculta os detalhes sem pedir confirmação
-                detailsContainer.style.display = "none"; // Oculta os detalhes
+                // Oculta os detalhes sem pedir confirmação
+                detailsContainer.style.display = "none";
                 toggleDetailsButton.textContent = "Mostrar Detalhes"; // Restaura o texto do botão
             }
         };
-        
+
         // Adiciona o texto e o container de detalhes ao contêiner
         li.appendChild(questionText);
         li.appendChild(detailsContainer); // Adiciona o container de detalhes
@@ -492,6 +513,7 @@ function loadFilteredQuestions(filteredQuestions) {//===========================
         li.appendChild(buttonContainer);
 
         lista.appendChild(li);
+
     });
 }
 function saveGlobalScore() {
@@ -533,7 +555,7 @@ function updateDatalist() {
         datalist.appendChild(option);
     });
 }
-// relacionado ao score ------------------------------------------------
+// relacionado ao score 
 function loadScoreForCategory(categoria) {
     const transaction = db.transaction(["score"], "readonly");
     const store = transaction.objectStore("score");
@@ -570,15 +592,49 @@ function loadScore() {
 function saveScore() {
     const transaction = db.transaction(["score"], "readwrite");
     const store = transaction.objectStore("score");
-    
+
     scores[currentCategory] = scores[currentCategory] || 0; // Inicializa se não existir
     store.put({ id: 1, scores: scores });
 }
-//fim relacionado ao score ---------------------------------------------------------------------
+//resetar todo o score con confirmação
 
+function resetScore() {
+    // Exibe o modal de confirmação com a mensagem e callbacks
+    showConfirmationModal(
+        "Você tem certeza que deseja resetar o score?", // Mensagem de confirmação
+        function() { // Callback de confirmação
+            score = 0; // Reseta o score da categoria atual
+            globalScore = 0; // Reseta o score global
+            scores = {}; // Reseta os scores de todas as categorias
+            
+            // Atualiza a interface
+            document.getElementById("score").textContent = score;
+            document.getElementById("global-score").textContent = globalScore;
+            
+            // Salva o score resetado em IndexedDB
+            saveScore(); 
+            saveGlobalScore(); // Função para salvar o globalScore se necessário
 
-async function loadNextQuestion(perguntasFiltradas) {
-    if (usedQuestions.length === perguntasFiltradas.length) {
+            console.log("Score e globalScore foram resetados.");
+        },
+        function() { // Callback de cancelamento (opcional)
+            console.log("Ação de reset de score foi cancelada.");
+        }
+    );
+}
+
+// fim resetar todo o score con confirmação
+
+//fim relacionado ao score 
+
+async function loadNextQuestion(perguntasFiltradas) { 
+    const selectedCategory = document.getElementById("categoria-quiz").value;
+
+    // Filtra para carregar todas as perguntas ou só da categoria
+    let perguntasDisponiveis = selectedCategory === "all" ? questions : perguntasFiltradas;
+
+    // Lógica para quando todas as perguntas da categoria foram usadas
+    if (usedQuestions.length === perguntasDisponiveis.length) {
         alertaConclusao();
         await showModalMessage("Você concluiu esta categoria! Para jogar novamente, inicie o quiz.", 'alert');
         usedQuestions = []; // Reinicia as perguntas usadas
@@ -586,7 +642,7 @@ async function loadNextQuestion(perguntasFiltradas) {
         return; // Finaliza a função
     }
 
-    let availableQuestions = perguntasFiltradas.filter((_, index) => !usedQuestions.includes(index));
+    let availableQuestions = perguntasDisponiveis.filter((_, index) => !usedQuestions.includes(index));
 
     if (availableQuestions.length === 0) {
         await showModalMessage("Você concluiu esta categoria! Para jogar novamente, inicie o quiz.");
@@ -596,43 +652,33 @@ async function loadNextQuestion(perguntasFiltradas) {
 
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     currentQuestion = availableQuestions[randomIndex];
-    usedQuestions.push(perguntasFiltradas.indexOf(currentQuestion));
+    usedQuestions.push(perguntasDisponiveis.indexOf(currentQuestion));
 
-    // Altera para usar <pre> para preservar a formatação
     document.getElementById("pergunta-quiz").innerHTML = `<pre>${currentQuestion.pergunta}</pre>`;
 
     const opcoesDiv = document.getElementById("opcoes");
     opcoesDiv.innerHTML = '';
 
-    // Embaralha as respostas
     const respostasComIndices = currentQuestion.respostas.map((resposta, index) => ({ resposta, index }));
     shuffleArray(respostasComIndices);
 
-    // Adiciona as respostas embaralhadas aos botões
-respostasComIndices.forEach(({ resposta, index }) => {
-    const button = document.createElement("button");
-    
-    // Defina a formatação desejada, por exemplo, adicionar quebras de linha
-    button.innerHTML = resposta.replace(/(?:\r\n|\r|\n)/g, '<br>'); // Troca novas linhas por <br>
-    
-    button.classList.add("option");
-    button.style.backgroundColor = getRandomColor(); // Define uma cor aleatória para o botão
+    respostasComIndices.forEach(({ resposta, index }) => {
+        const button = document.createElement("button");
+        button.innerHTML = resposta.replace(/(?:\r\n|\r|\n)/g, '<br>');
+        button.classList.add("option");
+        button.style.backgroundColor = getRandomColor();
+        const originalIndex = currentQuestion.respostas.indexOf(resposta);
+        button.onclick = () => checkAnswer(originalIndex);
+        opcoesDiv.appendChild(button);
+    });
 
-    // Aqui, usamos o índice original da resposta (index do array embaralhado)
-    const originalIndex = currentQuestion.respostas.indexOf(resposta);
-    button.onclick = () => checkAnswer(originalIndex); // Corrige para usar o índice original
-
-    opcoesDiv.appendChild(button);
-});
-
-
-    // Se houver limite de tempo, inicia o temporizador
     if (tempo) {
         startTimer(tempo);
     } else {
         document.getElementById("next-question-button").disabled = false;
     }
 }
+
 //fim funçao iniciar o quiz ------------------------------------------------------------------------------
 
 //funçao de timer de tempo --------------------------------------------------------------------------------
@@ -648,7 +694,7 @@ function startTimer(tempoLimite) {
             clearInterval(timer);
             document.getElementById("timer").textContent = "Tempo esgotado!";
             alertaTempo();
-            await showModalMessage("Tempo esgotado!",'error','error'); // Aguarda o fechamento do modal
+            await showModalMessage("Tempo esgotado!", 'error', 'error'); // Aguarda o fechamento do modal
             handleTimeOut(); // Chama a função após o modal ser fechado
         }
     }, 1000);
@@ -688,7 +734,7 @@ async function checkAnswer(selectedIndex) {
     } else {
         alertaErro();
         await showModalMessage(`Errado! A resposta correta é: ${currentQuestion.respostas[["A", "B", "C", "D"].indexOf(respostaCorreta)]}\nDescrição: ${currentQuestion.descricaoRespostas[["A", "B", "C", "D"].indexOf(respostaCorreta)]}`, 'error');
-        
+
         const modoJogo = document.getElementById("modo-jogo").value;
         switch (modoJogo) {
             case "hard":
@@ -709,40 +755,64 @@ async function checkAnswer(selectedIndex) {
     loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
 }
 
-
+//modal com confirmação
 function nextQuestion() {
-    // Pergunta ao usuário se ele deseja continuar e perder 1 ponto
-    const userConfirmed = confirm("Você será penalizado em 1 ponto ao avançar para a próxima pergunta. Deseja continuar?");
+    showConfirmationModal(
+        "Você será penalizado em 1 ponto ao avançar para a próxima pergunta. Deseja continuar?",
+        function () {
+            // Ação de confirmação
+            score--;
+            scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
+            globalScore--; // Penaliza o score global
 
-    if (userConfirmed) {
-        // Penaliza o score
-        score--;
-        scores[currentCategory] = (scores[currentCategory] || 0) - 1; // Penaliza o score da categoria
-        globalScore--; // Penaliza o score global
+            // Atualiza a interface
+            document.getElementById("score").textContent = score;
+            document.getElementById("global-score").textContent = globalScore;
 
-        // Atualiza a interface
-        document.getElementById("score").textContent = score; // Atualiza o score da categoria
-        document.getElementById("global-score").textContent = globalScore; // Atualiza o score global
+            // Salva os scores atualizados
+            saveScore();
+            saveGlobalScore();
 
-        // Salva os scores atualizados
-        saveScore(); // Salva o score da categoria em IndexedDB
-        saveGlobalScore(); // Salva o score global em IndexedDB
-
-        // Carrega a próxima pergunta mantendo na categoria atual
-        loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
-    } else {
-        console.log("Usuário cancelou a penalização.");
-    }
+            // Carrega a próxima pergunta
+            loadNextQuestion(questions.filter(q => q.categoria === currentCategory));
+        },
+        function () {
+            console.log("Usuário cancelou a penalização."); // Ação de cancelamento
+        }
+    );
 }
 
+//modal reutilizavel generico
+// Função de modal de confirmação genérica
+function showConfirmationModal(message, onConfirm, onCancel) {
+    const confirmationModal = document.getElementById("confirmationModal");
+    const messageText = document.getElementById("modalMessage");
+    messageText.textContent = message; // Define a mensagem personalizada
+    confirmationModal.style.display = "block";
 
-function resetScore() {
-    if (confirm("Você tem certeza que deseja resetar o score?")) {
-        score = 0;
-        document.getElementById("score").textContent = score;
-        saveScore(); // Salva o score resetado em indexedDB
-    }
+    // Executa a ação de confirmação
+    document.getElementById("confirmAction").onclick = function () {
+        confirmationModal.style.display = "none"; // Fecha o modal
+        if (onConfirm) onConfirm(); // Executa a função de confirmação passada
+    };
+
+    // Executa a ação de cancelamento
+    document.getElementById("cancelAction").onclick = function () {
+        confirmationModal.style.display = "none"; // Fecha o modal
+        if (onCancel) onCancel(); // Executa a função de cancelamento passada
+    };
+
+    // Fecha o modal ao clicar fora
+    confirmationModal.onclick = function (event) {
+        if (event.target === confirmationModal) {
+            confirmationModal.style.display = "none"; // Fecha o modal
+            if (onCancel) onCancel(); // Executa a função de cancelamento passada
+        }
+    };
 }
+
+//fim modal reutilizavel generico
+
 
 function exportDatabase() {
     const transaction = db.transaction(["questions"], "readonly");
@@ -797,13 +867,13 @@ function importScore() {
                 scores = data.scores; // Presume que 'scores' é a variável que armazena os scores
                 globalScore = data.globalScore; // Atualiza o score global
 
-                alert("Importação de scores concluída com sucesso!");
+                showModalMessage("Importação de scores concluída com sucesso!");
                 // Atualize a UI, se necessário
                 document.getElementById("score").textContent = scores[currentCategory];
                 document.getElementById("global-score").textContent = globalScore;
             } catch (error) {
                 console.error("Erro ao importar scores:", error);
-                alert("Erro ao importar scores. Verifique o formato do arquivo.");
+                showModalMessage("Erro ao importar scores. Verifique o formato do arquivo.");
             }
         };
 
@@ -855,7 +925,7 @@ function importDatabase(event) {
                 loadQuestions(); // Carrega as perguntas
                 loadCategorias(); // Atualiza as categorias
                 alertaConclusao();
-                showModalMessage("Banco de dados importado com sucesso!",'success');
+                showModalMessage("Banco de dados importado com sucesso!", 'success');
 
             };
         } catch (error) {
@@ -894,7 +964,7 @@ function openModal() {
 function closeModal() {
     const modal = document.getElementById("modal");
     modal.style.display = "none";
-    
+
     // Limpa a classe para não afetar o próximo uso
     const modalContent = document.getElementById("modal-content");
     modalContent.className = "modal-content"; // Reseta as classes
@@ -909,9 +979,15 @@ function closeModal() {
 lembre-se sempre que for usar showModalMessage tem que por qual type de modal vai querer usar 
 se nao especificar o padrão neutral será usado*/
 function showModalMessage(message, type) {
+    // Substitui &gt; por < e &lt; por >
+    const formattedMessage = message
+        .replace(/&gt;/g, '<')
+        .replace(/&lt;/g, '>');
+
     const modalContent = document.getElementById("modal-content");
     modalContent.className = "modal-content"; // Limpa classes anteriores
 
+    // Adiciona a classe conforme o tipo de mensagem
     if (type === 'success') {
         modalContent.classList.add('success');
     } else if (type === 'error') {
@@ -922,14 +998,13 @@ function showModalMessage(message, type) {
         modalContent.classList.add('neutral'); // Classe padrão para mensagens neutras
     }
 
-    document.getElementById("modal-message").textContent = message;
+    document.getElementById("modal-message").innerHTML = formattedMessage; // Usa innerHTML para renderizar corretamente
     document.getElementById("modal").style.display = "block"; // Mostra o modal
+
     return new Promise((resolve) => {
         resolveModalPromise = resolve; // Armazena a função de resolução da promessa
     });
 }
-
-
 
 // Fechar o modal ao clicar fora dele
 window.onclick = function (event) {
@@ -938,6 +1013,7 @@ window.onclick = function (event) {
         closeModal();
     }
 };
+
 
 //service worker para funcionar offline
 if ('serviceWorker' in navigator) {

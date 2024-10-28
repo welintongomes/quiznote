@@ -12,8 +12,16 @@
 </head>
 
 <body class="m-3">
+    <!-- Modal de Confirmação Genérico -->
+    <div id="confirmationModal" class="modalc">
+        <div class="modal-contentc">
+            <p id="modalMessage"></p> <!-- Elemento de mensagem personalizada -->
+            <button id="confirmAction" class="btn btn-danger">Sim</button>
+            <button id="cancelAction" class="btn btn-secondary">Não</button>
+        </div>
+    </div>
 
-    <!-- modal para exibir as mensagens -->
+    <!-- modal para exibir mensagens -->
     <div id="modal" style="display: none;">
         <div id="modal-content" class="modal-content">
             <span id="close" onclick="closeModal()" style="cursor: pointer;">&times;</span>
@@ -123,11 +131,11 @@
 
         <div class="respons">
             <button accesskey="s" title="ALT+S Salvar Nota" id="add-button" class="btn btn-primary" onclick="addQuestion()">Adicionar Nova Pergunta</button>
-            <button accesskey="d" title="ALT+D Exportar Arquivo" class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
-            <button class="btn btn-danger" onclick="deleteAllQuestions()">Excluir Todas as Perguntas</button>
             <!-- Botão para selecionar arquivo -->
             <button accesskey="a" title="ALT+A Importar Arquivo" id="uploadButton" class="btn btn-primary"
                 onclick="document.getElementById('fileInput').click();">Importar Perguntas .JSON</button>
+            <button accesskey="d" title="ALT+D Exportar Arquivo" class="btn btn-secondary" onclick="exportDatabase()">Exportar Banco de Dados</button>
+            <button class="btn btn-danger" onclick="deleteAllQuestions()">Excluir Todas as Perguntas</button>
         </div>
 
         <!-- Input de arquivo escondido -->
@@ -138,7 +146,7 @@
         <!-- campo para buscar perguntas -->
         <div class="search-container">
             <input type="text" id="search-bar" placeholder="Buscar perguntas..." oninput="searchQuestions()" />
-            <button class="btn btn-primary" onclick="searchQuestions()">Buscar</button>
+            <button class="btnPesquisa btn-primary" onclick="searchQuestions()">Buscar</button>
         </div>
 
         

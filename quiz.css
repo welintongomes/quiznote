@@ -410,7 +410,7 @@ h4 {
         /* Ajuste o padding conforme necessário */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         transition: transform 0.6s ease, box-shadow 0.3s ease;
-        margin-bottom: 20px;
+        margin-bottom: 3px;
         display: inline-block;
         /* Garante que o botão não expanda */
     }
@@ -640,7 +640,7 @@ textarea.resposta{
     height: 17px;
 }
 textarea#pergunta{
-    height: 105px;
+    height: 4px;
 }
 
 /*----------------------------------------------------*/
@@ -755,9 +755,10 @@ div.row.mx-auto.col-12.m-2 {
     margin-bottom: 10px; /* Espaço entre input e botão em telas pequenas */
 }
 
-button {
+button.btnPesquisa {
     width: 100%; /* Botão ocupa 100% em telas pequenas */
     padding: 10px;
+    border-radius: 6px;
 }
 
 /* Estilos para telas grandes */
@@ -775,10 +776,41 @@ button {
         margin-bottom: 11px; /* Remove a margem em telas grandes */
     }
 
-    button {
+    button.btnPesquisa {
+        border-radius: 3px;
         width: auto; /* O botão tem tamanho automático */
-        padding: 5px 10px; /* Ajusta o tamanho do botão */
+        padding: 10px 46px; /* Ajusta o tamanho do botão */
         margin-left: 10px; /* Espaço entre input e botão */
+        
     }
 }
 
+/*modal de confirmaçao*/
+/* Estilos para o Modal */
+.modalc {
+    display: none; /* Oculto por padrão */
+    position: fixed;
+    z-index: 1000; /* Exibe acima de outros elementos */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro semi-transparente */
+}
+
+.modal-contentc {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modalc button {
+    margin: 5px;
+}
+
+/*fim modal de confirmaçao*/
