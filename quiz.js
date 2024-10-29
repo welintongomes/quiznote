@@ -206,7 +206,28 @@ function loadQuestions() {
             const editButton = document.createElement("button");
             editButton.textContent = "Editar";
             editButton.className = "btn btn-warning btn-sm";
-            editButton.onclick = () => editQuestion(question.id);
+            editButton.onclick = () => {
+                //cria uma funçao de focar no campo de ediçao ao clicar no botão de editar
+                // Seleciona a seção de perguntas e o botão de detalhes
+                const toggleButton = document.getElementById("toggleButton");
+                const secPerguntas = document.getElementById("secPerguntas");
+
+                // Simula o clique no botão "Criar Novas Perguntas" para expandir a seção
+                if (secPerguntas.style.display === "none") {
+                    toggleButton.click(); // Expande a seção
+                }
+
+                // Agora que a seção está expandida, foca no textarea
+                setTimeout(() => {
+                    const perguntaTextarea = document.getElementById("pergunta");
+                    perguntaTextarea.focus();
+
+                    // Seleciona todo o texto
+                    perguntaTextarea.select();
+                }, 100); // Um pequeno delay para garantir que a seção esteja visível
+                // Chama a função editQuestion se necessário
+                editQuestion(question.id);
+            };
 
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "Excluir";
@@ -427,9 +448,27 @@ function loadFilteredQuestions(filteredQuestions) {//===========================
 
         const editButton = document.createElement("button");
         editButton.textContent = "Editar";
-        editButton.className = "btn btn-warning btn-sm";
-        editButton.onclick = () => editQuestion(question.id);
+        editButton.className = "btn btn-warning btn-sm"; editButton.onclick = () => {
+            // Seleciona a seção de perguntas e o botão de detalhes
+            const toggleButton = document.getElementById("toggleButton");
+            const secPerguntas = document.getElementById("secPerguntas");
 
+            // Simula o clique no botão "Criar Novas Perguntas" para expandir a seção
+            if (secPerguntas.style.display === "none") {
+                toggleButton.click(); // Expande a seção
+            }
+
+            // Foca no textarea após um pequeno delay
+            setTimeout(() => {
+                const perguntaTextarea = document.getElementById("pergunta");
+                perguntaTextarea.focus();
+
+                // Seleciona todo o texto
+                perguntaTextarea.select();
+            }, 100); // Um pequeno delay para garantir que a seção esteja visível
+            // Chama a função editQuestion se necessário
+            editQuestion(question.id);
+        };
         const deleteButton = document.createElement("button");
         deleteButton.textContent = "Excluir";
         deleteButton.className = "btn btn-danger btn-sm";
@@ -602,22 +641,22 @@ function resetScore() {
     // Exibe o modal de confirmação com a mensagem e callbacks
     showConfirmationModal(
         "Você tem certeza que deseja resetar o score?", // Mensagem de confirmação
-        function() { // Callback de confirmação
+        function () { // Callback de confirmação
             score = 0; // Reseta o score da categoria atual
             globalScore = 0; // Reseta o score global
             scores = {}; // Reseta os scores de todas as categorias
-            
+
             // Atualiza a interface
             document.getElementById("score").textContent = score;
             document.getElementById("global-score").textContent = globalScore;
-            
+
             // Salva o score resetado em IndexedDB
-            saveScore(); 
+            saveScore();
             saveGlobalScore(); // Função para salvar o globalScore se necessário
 
             console.log("Score e globalScore foram resetados.");
         },
-        function() { // Callback de cancelamento (opcional)
+        function () { // Callback de cancelamento (opcional)
             console.log("Ação de reset de score foi cancelada.");
         }
     );
@@ -627,7 +666,7 @@ function resetScore() {
 
 //fim relacionado ao score 
 
-async function loadNextQuestion(perguntasFiltradas) { 
+async function loadNextQuestion(perguntasFiltradas) {
     const selectedCategory = document.getElementById("categoria-quiz").value;
 
     // Filtra para carregar todas as perguntas ou só da categoria
@@ -651,26 +690,29 @@ async function loadNextQuestion(perguntasFiltradas) {
     }
 
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
-    currentQuestion = availableQuestions[randomIndex];
-    usedQuestions.push(perguntasDisponiveis.indexOf(currentQuestion));
+currentQuestion = availableQuestions[randomIndex];
+usedQuestions.push(perguntasDisponiveis.indexOf(currentQuestion));
 
-    document.getElementById("pergunta-quiz").innerHTML = `<pre>${currentQuestion.pergunta}</pre>`;
+// Use uma <div> e substitua quebras de linha por <br>
+document.getElementById("pergunta-quiz").innerHTML = currentQuestion.pergunta;
+    //.replace(/(?:\r\n|\r|\n)/g, '<br>'); // Substitui quebras de linha por <br>
+    //.replace(/ /g, '&ensp;'); // Substitui espaços por &ensp;
+const opcoesDiv = document.getElementById("opcoes");
+opcoesDiv.innerHTML = '';
 
-    const opcoesDiv = document.getElementById("opcoes");
-    opcoesDiv.innerHTML = '';
+const respostasComIndices = currentQuestion.respostas.map((resposta, index) => ({ resposta, index }));
+shuffleArray(respostasComIndices);
 
-    const respostasComIndices = currentQuestion.respostas.map((resposta, index) => ({ resposta, index }));
-    shuffleArray(respostasComIndices);
+respostasComIndices.forEach(({ resposta, index }) => {
+    const button = document.createElement("button");
+    button.innerHTML = resposta.replace(/(?:\r\n|\r|\n)/g, '<br>'); // Permite quebras de linha nas respostas
+    button.classList.add("option");
+    button.style.backgroundColor = getRandomColor();
+    const originalIndex = currentQuestion.respostas.indexOf(resposta);
+    button.onclick = () => checkAnswer(originalIndex);
+    opcoesDiv.appendChild(button);
+});
 
-    respostasComIndices.forEach(({ resposta, index }) => {
-        const button = document.createElement("button");
-        button.innerHTML = resposta.replace(/(?:\r\n|\r|\n)/g, '<br>');
-        button.classList.add("option");
-        button.style.backgroundColor = getRandomColor();
-        const originalIndex = currentQuestion.respostas.indexOf(resposta);
-        button.onclick = () => checkAnswer(originalIndex);
-        opcoesDiv.appendChild(button);
-    });
 
     if (tempo) {
         startTimer(tempo);
@@ -985,6 +1027,8 @@ function showModalMessage(message, type) {
         .replace(/&lt;/g, '>');
 
     const modalContent = document.getElementById("modal-content");
+    const iframe = document.getElementById("modal-iframe");
+    
     modalContent.className = "modal-content"; // Limpa classes anteriores
 
     // Adiciona a classe conforme o tipo de mensagem
@@ -998,13 +1042,40 @@ function showModalMessage(message, type) {
         modalContent.classList.add('neutral'); // Classe padrão para mensagens neutras
     }
 
-    document.getElementById("modal-message").innerHTML = formattedMessage; // Usa innerHTML para renderizar corretamente
+    // Cria um documento no iframe e escreve a mensagem
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <html>
+        <head>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0px;
+                    font-family: Arial, sans-serif;
+                    // background-color: white;
+                    
+                }
+                .success { color: green; }
+                .error { color: red; }
+                .alert { color: orange; }
+                .neutral { color: black; }
+            </style>
+        </head>
+        <body>
+            <div class="${type}">${formattedMessage}</div>
+        </body>
+        </html>
+    `);
+    doc.close();
+
     document.getElementById("modal").style.display = "block"; // Mostra o modal
 
     return new Promise((resolve) => {
         resolveModalPromise = resolve; // Armazena a função de resolução da promessa
     });
 }
+
 
 // Fechar o modal ao clicar fora dele
 window.onclick = function (event) {
@@ -1176,3 +1247,12 @@ function limparSessionStorage() {
     document.getElementById('resposta-correta').value = '';
     document.getElementById('categoria').value = '';
 }
+
+document.getElementById("toggleButton").addEventListener("click", function () {
+    var secPerguntas = document.getElementById("secPerguntas");
+    if (secPerguntas.style.display === "none") {
+        secPerguntas.style.display = "block"; // Expande a div
+    } else {
+        secPerguntas.style.display = "none"; // Esconde a div
+    }
+});
